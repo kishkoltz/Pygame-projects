@@ -10,7 +10,7 @@ Okay, it seems it's gonna be a space shooter after all. Things to do:
 twinkling STATUS: something's there, not very nebula-like
 2. Strands of nebula should pass the player by so that it suggests we're
 getting closer
-3. In the bottom-left corner there could be the starship'n nose,
+3. In the bottom-left corner there could be the starship's nose,
 perhaps seen through some cockpit window
 4. Enemy ships would overtake the player and stop some distance ahead so that
 they can be shot down
