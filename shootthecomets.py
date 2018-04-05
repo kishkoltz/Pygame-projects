@@ -98,11 +98,7 @@ def createTunnel():
         (0.1*SMALLSQUARESIDE + 0.1*SMALLSQUAREGAP)/2),
         blocksHorizontally*(0.1*SMALLSQUARESIDE + 0.1*SMALLSQUAREGAP),
         blocksVertically*(0.1*SMALLSQUARESIDE + 0.1*SMALLSQUAREGAP), 1, 0)
-        '''
-        tunnel[len(tunnel)-2] = (4*SMALLSQUAREGAP + 10, 4*SMALLSQUAREGAP + 10,
-        blocksHorizontally*(0.1*SMALLSQUARESIDE + 0.1*SMALLSQUAREGAP) + 20,
-        blocksVertically*(0.1*SMALLSQUARESIDE + 0.1*SMALLSQUAREGAP) + 20, 0.95, 40)
-        '''
+
     if tunnel[0][2] > 500 or tunnel[0][3] > 500:
             tunnel.pop(0)
 def drawTunnel():
@@ -157,7 +153,7 @@ def moveCometsFarAway():
             cometsFarAway[c][4] + 5,
             cometsFarAway[c][5] * 1.01)
         for x in cometsFarAway[:]:
-            if x[5] >= 2: #now they are moving fast far away and slow when they are close, should be the opposite
+            if x[5] >= 2:
                 cometsFarAway.remove(x)
 def drawComets():
     for c in range(len(comets)):
@@ -180,12 +176,18 @@ def shootTheComet():
     if len(cometsFarAway) >= 1:
         for f in range(len(cometsFarAway[:])):
             target.append([])
-            target[f].append(WINDOWWIDTH/2 - (cometsFarAway[f][5] * cometsFarAway[f][0]) + crosshairx*cometsFarAway[f][3])
-            target[f].append(WINDOWHEIGHT/2 - (cometsFarAway[f][5] * cometsFarAway[f][1]) + crosshairy*cometsFarAway[f][3])
+            target[f].append(WINDOWWIDTH/2 -
+            (cometsFarAway[f][5] * cometsFarAway[f][0]) +
+            crosshairx*cometsFarAway[f][3])
+            target[f].append(WINDOWHEIGHT/2 -
+            (cometsFarAway[f][5] * cometsFarAway[f][1]) +
+            crosshairy*cometsFarAway[f][3])
             target[f].append(cometsFarAway[f][2])
         for t in range(len(target)):
-            if event.pos[0] in range(int(target[t][0]-target[t][2]), int(target[t][0]+target[t][2])) and \
-            event.pos[1] in range(int(target[t][1]-target[t][2]), int(target[t][1]+target[t][2])):
+            if event.pos[0] in range(int(target[t][0]-target[t][2]),
+            int(target[t][0]+target[t][2]))
+            and event.pos[1] in range(int(target[t][1]-target[t][2]),
+            int(target[t][1]+target[t][2])):
                 print("poof")
                 cometsFarAway.pop(t)
 setGrid()
