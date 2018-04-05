@@ -1,7 +1,7 @@
 # E:\ppython\app\python.exe keyboard.py
 
 import pygame, sys, random
-from pygame.locls import *
+from pygame.locals import *
 
 pygame.init()
 mainClock = pygame.time.Clock()
