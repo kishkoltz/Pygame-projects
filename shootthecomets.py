@@ -67,7 +67,10 @@ def getNebula():
                 if (x - (WINDOWWIDTH/2))**2 + (y - WINDOWHEIGHT/2)**2 < 20**2:
                     nebula.append([])
                     nebula[len(nebula)-1] = (x, y)
-                if (x - (WINDOWWIDTH/2))**2 + (y - WINDOWHEIGHT/2)**2 == (WINDOWHEIGHT/2)**2 or (x - (WINDOWWIDTH/2))**2 + (y - WINDOWHEIGHT/2)**2 == (WINDOWHEIGHT/2-1)**2:
+                if (x - (WINDOWWIDTH/2))**2 + (y - WINDOWHEIGHT/2)**2 == \
+                (WINDOWHEIGHT/2)**2 \
+                or (x - (WINDOWWIDTH/2))**2 + (y - WINDOWHEIGHT/2)**2 == \
+                (WINDOWHEIGHT/2-1)**2:
                     nebulaRim.append([])
                     nebulaRim[len(nebulaRim)-1] = (x, y, SMALLSQUARESIDE, 1, 20)
         for n in range(len(nebula)/20):
