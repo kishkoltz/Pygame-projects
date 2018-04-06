@@ -37,8 +37,13 @@ blocksHorizontally = 0
 blocksVertically = 0
 nebula = []
 nebulaRim = []
+enemyRim = []
 randomNebula = []
 cometsFarAway = []
+starship = []
+enemies = []
+
+
 def setGrid():
     global WINDOWWIDTH, WINDOWHEIGHT, blocksHorizontally, blocksVertically
     blocksHorizontally = int(WINDOWWIDTH / (SMALLSQUARESIDE + SMALLSQUAREGAP))
@@ -75,7 +80,14 @@ def getNebula():
                     nebulaRim[len(nebulaRim)-1] = (x, y, SMALLSQUARESIDE, 1, 20)
         for n in range(len(nebula)/20):
             randomNebula.append(random.randint(0,len(nebula)))
-
+def getEnemiesRim():
+    for x in range(WINDOWWIDTH):
+        for y in range(WINDOWHEIGHT):
+            if(x - (WINDOWWIDTH/2))**2 + (y - WINDOWHEIGHT/2)**2 == \
+            (WINDOWHEIGHT/2-19)**2:
+                enemyRim.append([])
+                enemyRim[len(enemyRim)-1] = (x, y)
+    print(len(enemyRim))
 def createTunnel():
     global tunnel
     if len(tunnel) == 0:
@@ -174,6 +186,7 @@ def drawCometsFarAway():
         crosshairy*cometsFarAway[f][3],
         cometsFarAway[f][2]*cometsFarAway[f][5],
         cometsFarAway[f][2]*cometsFarAway[f][5]))
+
 def shootTheComet():
     target = []
     if len(cometsFarAway) >= 1:
@@ -187,14 +200,170 @@ def shootTheComet():
             crosshairy*cometsFarAway[f][3])
             target[f].append(cometsFarAway[f][2])
         for t in range(len(target)):
-            if event.pos[0] in range(int(target[t][0]-target[t][2]),
-            int(target[t][0]+target[t][2]))
+            if event.pos[0] in range(int(target[t][0] - target[t][2]),
+            int(target[t][0] + target[t][2]))\
             and event.pos[1] in range(int(target[t][1]-target[t][2]),
             int(target[t][1]+target[t][2])):
                 print("poof")
                 cometsFarAway.pop(t)
+
+def getStarship():
+    global starship
+    for x in range(5):
+        starship.append([])
+
+def getEnemies():
+    global enemies
+
+    enemies.append([])
+    enemies[len(enemies)-1].append([])
+    enemies[len(enemies)-1].append([])
+    print (enemies)
+def modifyStarship():
+    global starship
+    for x in range(5):
+        starship[x] = {'color':(90+10*x, 90+15*x, 90+30*x),
+        'topleft':(WINDOWWIDTH/2 - ((5*(3**0.5))+(x*(3**0.5))) +
+        int((0.4 - (0.05*x)) * crosshairx),
+        WINDOWHEIGHT/2 - (5+x) + int((0.4 - (0.05*x)) * crosshairy)),
+        'topright':(WINDOWWIDTH/2 + ((5*(3**0.5))+(x*(3**0.5))) +
+        int((0.4 - (0.05*x)) * crosshairx),
+        WINDOWHEIGHT/2 - (5+x) + int((0.4 - (0.05*x)) * crosshairy)),
+        'bottom':(WINDOWWIDTH/2 + int((0.4 - (0.05*x)) * crosshairx),
+        WINDOWHEIGHT/2 + (10+x) + int((0.4 - (0.05*x)) * crosshairy))}
+def modifySecondStarship():
+    global enemies
+    for x in range(5):
+        secondStarship[x] = {'color':(90+10*x, 90+15*x, 90+30*x),
+        'topleft':\
+        (WINDOWWIDTH/2 + (50+x*2.5) - ((5*(3**0.5))+(x*(3**0.5))) +
+        int((0.4 - (0.05*x)) * crosshairx),
+        WINDOWHEIGHT/2 + (50+x*2.5) - (5+x) +
+        int((0.4 - (0.05*x)) * crosshairy)),
+        'topright':\
+        (WINDOWWIDTH/2 + (50+x*2.5) + ((5*(3**0.5))+(x*(3**0.5))) +
+        int((0.4 - (0.05*x)) * crosshairx),
+        WINDOWHEIGHT/2 + (50+x*2.5) - (5+x) +
+        int((0.4 - (0.05*x)) * crosshairy)),
+        'bottom':\
+        (WINDOWWIDTH/2 + (50+x*2.5) +
+        int((0.4 - (0.05*x)) * crosshairx),
+        WINDOWHEIGHT/2 + (50+x*2.5) + (10+x) +
+        int((0.4 - (0.05*x)) * crosshairy))}
+def drawTop(vessel):
+    pygame.draw.polygon(windowSurface, (0, 255, 0),
+    (vessel[0]['topleft'], vessel[0]['topright'],
+    vessel[4]['topright'], vessel[4]['topleft']))
+def drawLeft(vessel):
+    pygame.draw.polygon(windowSurface, (255, 0, 0),
+    (vessel[0]['topleft'], vessel[4]['topleft'],
+    vessel[4]['bottom'], vessel[0]['bottom']))
+def drawRight(vessel):
+    pygame.draw.polygon(windowSurface, (0, 0, 255),
+    (vessel[0]['topright'], vessel[4]['topright'],
+    vessel[4]['bottom'], vessel[0]['bottom']))
+def drawBack(vessel):
+    pygame.draw.polygon(windowSurface, (255, 255, 255),
+    (vessel[4]['topleft'], vessel[4]['topright'],
+    vessel[4]['bottom']))
+def drawStarship():
+    '''
+    b = y intercept = x==0, y == b
+    f(y)=(3**0.5)*x + b
+    b = y - (3**0.5)*x
+    '''
+    smallLeftIntercept = starship[0]['topleft'][1] - \
+    ((3**0.5)*starship[0]['topleft'][0])
+    biggerLeftIntercept = starship[1]['topleft'][1] - \
+    ((3**0.5)*starship[1]['topleft'][0])
+    '''
+    c = y intercept = x == WINDOWWIDTH, y == c
+    '''
+    smallRightIntercept = starship[0]['topright'][1] - \
+    ((-1*(3**0.5))*starship[0]['topright'][0])
+    biggerRightIntercept = starship[1]['topright'][1] - \
+    ((-1*(3**0.5))*starship[1]['topright'][0])
+    '''
+    if smallY < bigY:
+        I. if smallLeftIntercept >= biggerLeftIntercept and
+            smallRightIntercept <= biggerRightIntercept:
+            draw the top and left sides
+        II. ifsmallLeftIntercept <= biggerRightIntercept and
+            smallRightIntercept >= biggerRightIntercept:
+            draw the top and right sides
+        III. ifsmallLeftIntercept <= biggerLeftIntercept and
+            smallRightIntercept <= biggerRightIntercept:
+            draw only the top side
+    if smallY > bigY:
+        I. if smallLeftIntercept >= biggerLeftIntercept and
+            smallRightIntercept >= biggerRightIntercept:
+            draw the left and right sides
+        II. if smallLeftIntercept >= biggerLeftIntercept and
+            smallRightIntercept <= biggerRightIntercept:
+            draw only the left side
+        III. if smallLeftIntercept <= biggerLeftIntercept and
+            smallRightIntercept >= biggerRightIntercept:
+            draw only the right side
+    '''
+    drawBack(starship)
+    if starship[0]['topleft'][1] < starship[1]['topleft'][1]:
+        drawTop(starship)
+        if smallLeftIntercept > biggerLeftIntercept and \
+        smallRightIntercept < biggerRightIntercept:
+            drawLeft(starship)
+        if smallLeftIntercept < biggerLeftIntercept and \
+        smallRightIntercept > biggerRightIntercept:
+            drawRight(starship)
+    if starship[0]['topleft'][1] >= starship[1]['topleft'][1]:
+        if smallLeftIntercept > biggerLeftIntercept and \
+        smallRightIntercept > biggerRightIntercept:
+            drawLeft(starship), drawRight(starship)
+        if smallLeftIntercept > biggerLeftIntercept and \
+        smallRightIntercept < biggerRightIntercept:
+            drawLeft(starship)
+        if smallLeftIntercept < biggerLeftIntercept and \
+        smallRightIntercept > biggerRightIntercept:
+            drawRight(starship)
+def drawSecondStarship():
+    smallLeftIntercept = secondStarship[0]['topleft'][1] - \
+    ((3**0.5)*secondStarship[0]['topleft'][0])
+    biggerLeftIntercept = secondStarship[1]['topleft'][1] - \
+    ((3**0.5)*secondStarship[1]['topleft'][0])
+
+    smallRightIntercept = secondStarship[0]['topright'][1] - \
+    ((-1*(3**0.5))*secondStarship[0]['topright'][0])
+    biggerRightIntercept = secondStarship[1]['topright'][1] - \
+    ((-1*(3**0.5))*secondStarship[1]['topright'][0])
+
+    drawBack(secondStarship)
+    if secondStarship[0]['topleft'][1] < secondStarship[1]['topleft'][1]:
+        drawTop(secondStarship)
+        if smallLeftIntercept > biggerLeftIntercept and \
+        smallRightIntercept < biggerRightIntercept:
+            drawLeft(secondStarship)
+        if smallLeftIntercept < biggerLeftIntercept and \
+        smallRightIntercept > biggerRightIntercept:
+            drawRight(secondStarship)
+    if secondStarship[0]['topleft'][1] >= secondStarship[1]['topleft'][1]:
+        if smallLeftIntercept > biggerLeftIntercept and \
+        smallRightIntercept > biggerRightIntercept:
+            drawLeft(secondStarship), drawRight(secondStarship)
+        if smallLeftIntercept > biggerLeftIntercept and \
+        smallRightIntercept < biggerRightIntercept:
+            drawLeft(secondStarship)
+        if smallLeftIntercept < biggerLeftIntercept and \
+        smallRightIntercept > biggerRightIntercept:
+            drawRight(secondStarship)
+
+
+
 setGrid()
 getNebula()
+getStarship()
+getEnemiesRim()
+getEnemies()
+getEnemies()
+getEnemies()
 #createTunnel()
 while True:
     for event in pygame.event.get():
@@ -208,6 +377,13 @@ while True:
             shootTheComet()
     windowSurface.fill(BLACK)
     #drawTunnel
+    for e in range(len(enemyRim)):
+        pygame.draw.rect(windowSurface, (255, 255, 255),
+        (enemyRim[e][0] + crosshairx*1.2,
+        enemyRim[e][1] + crosshairy*1.2,
+        4, 4))
+
+
     for n in range(len(randomNebula)):
         pygame.draw.rect(windowSurface,(random.randint(0,255), 100, 100),
         (nebula[randomNebula[n]][0]+crosshairx,
@@ -215,10 +391,13 @@ while True:
         2, 2))
     moveComets()
     moveCometsFarAway()
+    modifyStarship()
+    modifySecondStarship()
     addComets()
     addCometsFarAway()
     drawComets()
     drawCometsFarAway()
+    drawStarship()
+    drawSecondStarship()
     pygame.display.update()
     time.sleep(0.02)
-    #let's try to branch this thing
