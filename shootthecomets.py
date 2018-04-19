@@ -9,12 +9,14 @@ Okay, it seems it's gonna be a space shooter after all. Things to do:
 1. Generate a nebula on a startup. It's gonna have a random shape and gonna be
 twinkling STATUS: something's there, not very nebula-like
 2. Strands of nebula should pass the player by so that it suggests we're
-getting closer
+getting closer STATUS: there are shootable rectangles passing by
 3. In the bottom-left corner there could be the starship's nose,
 perhaps seen through some cockpit window
 4. Enemy ships would overtake the player and stop some distance ahead so that
 they can be shot down
-    STATUS: enemyRim in its current state is not scalable
+    STATUS: the enemy ships are generating correctly.
+    next steps: get the enemy ships to spawn in a greater distance and
+    close in slowly. Also, add some details to the ships, e.g. afterburners
 '''
 
 pygame.init()
@@ -214,13 +216,13 @@ def getStarship():
 
 def getEnemies():
     global enemies
-    enemy = random.randint(0, len(enemyRim))
+    enemy = random.randint(0, len(enemyRim)-1)
     enemies.append([])
     enemies[len(enemies)-1].append([])
     enemies[len(enemies)-1].append([])
     for x in range(2):
         enemies[len(enemies)-1][x] = {'number':enemy,
-        'color':(90+10*x, 90+15*x, 90+30*x),
+        'color':(150, 0, 0),
         'topleft':\
         ((enemyRim[enemy][0]) - ((5*(3**0.5))+(x*(3**0.5))) +
         int((0.4 - (0.05*x)) * crosshairx),
@@ -235,13 +237,27 @@ def getEnemies():
         ((enemyRim[enemy][0]) +
         int((0.4 - (0.05*x)) * crosshairx),
         (enemyRim[enemy][1]) + (10+x) +
-        int((0.4 - (0.05*x)) * crosshairy))}
-    #print (enemies)
-
+        int((0.4 - (0.05*x)) * crosshairy)),
+        'burners':[]}
+    for b in range(5):
+        enemies[len(enemies)-1][1]['burners'].append((
+        ((enemyRim[enemy][0]) + int((0.4 - (0.05*b)) * crosshairx),
+        (enemyRim[enemy][1]) - (5+b) + int((0.4 - (0.05*b)) * crosshairy)),
+        ((enemyRim[enemy][0]) + int((0.4 - (0.05*b)) * crosshairx),
+        (enemyRim[enemy][1]) + (10+b) + int((0.4 - (0.05*b)) * crosshairy)),
+        (enemies[len(enemies)-1][1]['color'][0]*(1-(0.15*b)),
+        enemies[len(enemies)-1][1]['color'][1]*(1-(0.15*b)),
+        enemies[len(enemies)-1][1]['color'][2]*(1-(0.15*b)))
+        ))
+    '''
+    for x in range(len(enemies)):
+        for k,v in enemies[x][1].items():
+            print(k, v)
+    '''
 def modifyStarship():
     global starship
     for x in range(2):
-        starship[x] = {'color':(90+10*x, 90+15*x, 90+30*x),
+        starship[x] = {'color':(0, 150, 0),
         'topleft':(WINDOWWIDTH/2 - ((5*(3**0.5))+(4*x*(3**0.5))) +
         int((0.4 - (0.2*x)) * crosshairx),
         WINDOWHEIGHT/2 - (5+4*x) + int((0.4 - (0.2*x)) * crosshairy)),
@@ -311,6 +327,28 @@ def modifyEnemies():
             (x*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][x]['number']][1]))) +
             (10+4*x) + (crosshairy* (0.5-x*0.1)))
 
+        for b in range(5):
+            enemies[e][1]['burners'][b] = (
+            (enemyRim[enemies[e][1]['number']][0] -
+            (b*(0.1*(WINDOWWIDTH/2 - enemyRim[enemies[e][1]['number']][0]))) +
+            (crosshairx* (0.5-b*0.1)),
+
+            enemyRim[enemies[e][1]['number']][1] -
+            (b*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][1]['number']][1]))) -
+            (5-0.5*b) + (crosshairy* (0.5-b*0.1))),
+
+            (enemyRim[enemies[e][1]['number']][0] -
+            (b*(0.1*(WINDOWWIDTH/2 - enemyRim[enemies[e][1]['number']][0]))) +
+            (crosshairx* (0.5-b*0.1)),
+
+            enemyRim[enemies[e][1]['number']][1] -
+            (b*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][1]['number']][1]))) +
+            (10-0.5*b) + (crosshairy* (0.5-b*0.1))),
+
+            (enemies[e][1]['color'][0]*(1+(0.1*b)),
+            enemies[e][1]['color'][1]*(1+(0.1*b)),
+            enemies[e][1]['color'][2]*(1+(0.1*b)))
+            )
 def drawTop(vessel):
     pygame.draw.polygon(windowSurface, (140, 140, 140),
     (vessel[0]['topleft'], vessel[0]['topright'],
@@ -324,9 +362,15 @@ def drawRight(vessel):
     (vessel[0]['topright'], vessel[1]['topright'],
     vessel[1]['bottom'], vessel[0]['bottom']))
 def drawBack(vessel):
-    pygame.draw.polygon(windowSurface, (100, 100, 255),
+    pygame.draw.polygon(windowSurface, vessel[1]['color'],
     (vessel[1]['topleft'], vessel[1]['topright'],
     vessel[1]['bottom']))
+def drawBurners(vessel):
+    for b in range(5):
+        pygame.draw.polygon(windowSurface, vessel[1]['burners'][b][2],
+        ((vessel[1]['burners'][b][0][0]-5, vessel[1]['burners'][b][0][1]),
+        (vessel[1]['burners'][b][0][0]+5, vessel[1]['burners'][b][0][1]),
+        vessel[1]['burners'][b][1]))
 def drawStarship():
     '''
     b = y intercept = x==0, y == b
@@ -417,7 +461,7 @@ def drawEnemies():
             if smallLeftIntercept < biggerLeftIntercept and \
             smallRightIntercept > biggerRightIntercept:
                 drawRight(enemies[e])
-
+        drawBurners(enemies[e])
 
 
 setGrid()
@@ -427,6 +471,10 @@ getEnemiesRim()
 getEnemies()
 getEnemies()
 getEnemies()
+getEnemies()
+getEnemies()
+getEnemies()
+
 #createTunnel()
 while True:
     for event in pygame.event.get():
@@ -452,7 +500,7 @@ while True:
         enemyRim[e][1] - (0.1*(WINDOWHEIGHT/2 - enemyRim[e][1])) + crosshairy*0.8,
         6, 6))
     '''
-    for n in range(len(randomNebula)):
+    for n in range(len(randomNebula)-1):
         pygame.draw.rect(windowSurface,(random.randint(0,255), 100, 100),
         (nebula[randomNebula[n]][0]+crosshairx,
         nebula[randomNebula[n]][1]+crosshairy,
