@@ -220,6 +220,7 @@ def getEnemies():
     enemies.append([])
     enemies[len(enemies)-1].append([])
     enemies[len(enemies)-1].append([])
+    enemies[len(enemies)-1].append([])
     for x in range(2):
         enemies[len(enemies)-1][x] = {'number':enemy,
         'color':(150, 0, 0),
@@ -239,15 +240,15 @@ def getEnemies():
         (enemyRim[enemy][1]) + (10+x) +
         int((0.4 - (0.05*x)) * crosshairy)),
         'burners':[]}
-    for b in range(5):
+    for b in range(1):
         enemies[len(enemies)-1][1]['burners'].append((
-        ((enemyRim[enemy][0]) + int((0.4 - (0.05*b)) * crosshairx),
-        (enemyRim[enemy][1]) - (5+b) + int((0.4 - (0.05*b)) * crosshairy)),
-        ((enemyRim[enemy][0]) + int((0.4 - (0.05*b)) * crosshairx),
-        (enemyRim[enemy][1]) + (10+b) + int((0.4 - (0.05*b)) * crosshairy)),
-        (enemies[len(enemies)-1][1]['color'][0]*(1-(0.15*b)),
-        enemies[len(enemies)-1][1]['color'][1]*(1-(0.15*b)),
-        enemies[len(enemies)-1][1]['color'][2]*(1-(0.15*b)))
+        ((enemyRim[enemy][0]) + int((0.4 - (0.05*(b+1))) * crosshairx),
+        (enemyRim[enemy][1]) - (6+b) + int((0.4 - (0.05*(b+1))) * crosshairy)),
+        ((enemyRim[enemy][0]) + int((0.4 - (0.05*(b+1))) * crosshairx),
+        (enemyRim[enemy][1]) + (11+b) + int((0.4 - (0.05*(b+1))) * crosshairy)),
+        (enemies[len(enemies)-1][1]['color'][0]*(1-(0.15*(b+1))),
+        enemies[len(enemies)-1][1]['color'][1]*(1-(0.15*(b+1))),
+        enemies[len(enemies)-1][1]['color'][2]*(1-(0.15*(b+1))))
         ))
     '''
     for x in range(len(enemies)):
@@ -327,27 +328,27 @@ def modifyEnemies():
             (x*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][x]['number']][1]))) +
             (10+4*x) + (crosshairy* (0.5-x*0.1)))
 
-        for b in range(5):
+        for b in range(1):
             enemies[e][1]['burners'][b] = (
             (enemyRim[enemies[e][1]['number']][0] -
-            (b*(0.1*(WINDOWWIDTH/2 - enemyRim[enemies[e][1]['number']][0]))) +
-            (crosshairx* (0.5-b*0.1)),
+            ((b+1)*(0.1*(WINDOWWIDTH/2 - enemyRim[enemies[e][1]['number']][0]))) +
+            (crosshairx* (0.5-(b+1)*0.1)),
 
             enemyRim[enemies[e][1]['number']][1] -
-            (b*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][1]['number']][1]))) -
-            (5-0.5*b) + (crosshairy* (0.5-b*0.1))),
+            ((b+1)*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][1]['number']][1]))) -
+            (5-0.5*(b+1)) + (crosshairy* (0.5-(b+1)*0.1))),
 
             (enemyRim[enemies[e][1]['number']][0] -
-            (b*(0.1*(WINDOWWIDTH/2 - enemyRim[enemies[e][1]['number']][0]))) +
-            (crosshairx* (0.5-b*0.1)),
+            ((b+1)*(0.1*(WINDOWWIDTH/2 - enemyRim[enemies[e][1]['number']][0]))) +
+            (crosshairx* (0.5-(b+1)*0.1)),
 
             enemyRim[enemies[e][1]['number']][1] -
-            (b*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][1]['number']][1]))) +
-            (10-0.5*b) + (crosshairy* (0.5-b*0.1))),
+            ((b+1)*(0.1*(WINDOWHEIGHT/2 - enemyRim[enemies[e][1]['number']][1]))) +
+            (10-0.5*(b+1)) + (crosshairy* (0.5-(b+1)*0.1))),
 
-            (enemies[e][1]['color'][0]*(1+(0.1*b)),
-            enemies[e][1]['color'][1]*(1+(0.1*b)),
-            enemies[e][1]['color'][2]*(1+(0.1*b)))
+            (enemies[e][1]['color'][0]*(1+(0.1*(b+1))),
+            enemies[e][1]['color'][1]*(1+(0.1*(b+1))),
+            enemies[e][1]['color'][2]*(1+(0.1*(b+1))))
             )
 def drawTop(vessel):
     pygame.draw.polygon(windowSurface, (140, 140, 140),
@@ -366,7 +367,7 @@ def drawBack(vessel):
     (vessel[1]['topleft'], vessel[1]['topright'],
     vessel[1]['bottom']))
 def drawBurners(vessel):
-    for b in range(5):
+    for b in range(1):
         pygame.draw.polygon(windowSurface, vessel[1]['burners'][b][2],
         ((vessel[1]['burners'][b][0][0]-5, vessel[1]['burners'][b][0][1]),
         (vessel[1]['burners'][b][0][0]+5, vessel[1]['burners'][b][0][1]),
