@@ -1,4 +1,4 @@
-# E:\ppython\app\python.exe engine.py
+# E:\ppython\app\python.exe engine2.py
 '''
 Setting up rules for every element separately is bothersome. I will try to
 create an engine which will process the information about the elements and
@@ -43,7 +43,7 @@ crosshairy = 0
 BLACK = (0, 0, 0)
 
 grid = {'absolute':\
-{'dimensions':[200, 200], 'layers':[3,5], 'position':[-100, -100, 0],
+{'dimensions':[200, 200], 'layers':[3,2], 'position':[-100, -100, 0],
 'movement':[0, 0, 0]},'relative':['dimension x, dimension y',
 'topleft x, topleft y']} # a nested dict for absolute and relative values
 def modifyDimensions(item):
@@ -53,28 +53,32 @@ def modifyDimensions(item):
     item['relative'] = []
     for l in range(item['absolute']['layers'][0]):
         item['relative'].append([])
+        '''
+        f(z)=-0.01 * (z - 100) ** 2 + 100
+        f(z)=(-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100
+        (1 - (((((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100))
+        '''
+        item['relative'][l] = (item['absolute']['dimensions'][0] / 200 * WINDOWWIDTH *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)),
 
-        item['relative'][l] = ((item['absolute']['dimensions'][0] *
-        (math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))) /200 * WINDOWWIDTH,
+        item['absolute']['dimensions'][1] /200 * WINDOWHEIGHT *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)),
 
-        (item['absolute']['dimensions'][1] *
-        (math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))) /200 * WINDOWHEIGHT,
+        (WINDOWWIDTH/2 + ((WINDOWWIDTH / 2) * (item['absolute']['position'][0] / 100) *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100))) +
+        crosshairx * ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)),
 
-        (WINDOWWIDTH/2 + ((WINDOWWIDTH / 2) *
-        (item['absolute']['position'][0] / 100) *
-        ((math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1])))))) +
-        crosshairx * (math.sin(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))),
-
-        (WINDOWHEIGHT/2 + (WINDOWHEIGHT / 2) *
-        (item['absolute']['position'][1] / 100) *
-        ((math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))) +
-        crosshairy * ((math.sin(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1])))))))
+        (WINDOWHEIGHT/2 + (WINDOWHEIGHT / 2) * (item['absolute']['position'][1] / 100) *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)) +
+        crosshairy * ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)))
 
 
 def moveObject(item, destination, phase):
@@ -110,14 +114,14 @@ while True:
             if event.key == K_UP or event.key == ord('w'):
                 moveObject(grid, 'forward', 'stop')
             if event.key == K_DOWN or event.key == ord('s'):
-                moveObject(grid, 'backward', 'stop')
+                moveObject(grid, 'backward', 'stop');
         #if event.type == MOUSEBUTTONUP:
         #    shootTheComet()
     windowSurface.fill(BLACK)
     modifyDimensions(grid)
     #print(grid)
     for o in range(grid['absolute']['layers'][0]):
-        pygame.draw.rect(windowSurface,(50+30*o, 0, 0),
+        pygame.draw.rect(windowSurface,(200-25*o, 0, 0),
         (grid['relative'][o][2], grid['relative'][o][3],
         grid['relative'][o][0], grid['relative'][o][1]))
     pygame.display.update()
