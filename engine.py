@@ -42,53 +42,76 @@ crosshairx = 0
 crosshairy = 0
 BLACK = (0, 0, 0)
 
+
 grid = {'absolute':\
-{'dimensions':[200, 200], 'layers':[3,5], 'position':[-100, -100, 0],
+{'dimensions':[200.0, 200.0], 'layers':[50,2], 'position':[-100.0, -100.0, 0.0],
 'movement':[0, 0, 0]},'relative':['dimension x, dimension y',
 'topleft x, topleft y']} # a nested dict for absolute and relative values
+box = {'absolute':\
+{'dimensions':[50.0, 50.0], 'layers':[5,2], 'position':[-25.0, -25.0, 20.0],
+'movement':[0, 0, 0]},'relative':['dimension x, dimension y',
+'topleft x, topleft y']}
+
 def modifyDimensions(item):
     for t in range(3):
-        item['absolute']['position'][t] += item['absolute']['movement'][t]
+        item['absolute']['position'][t] += (item['absolute']['movement'][t] *
+        (1 - ((-0.01 * ((item['absolute']['position'][2] - 100) ** 2) + 100)/100)))
 
     item['relative'] = []
     for l in range(item['absolute']['layers'][0]):
         item['relative'].append([])
+        '''
+        f(z)=-0.01 * (z - 100) ** 2 + 100
+        f(z)=(-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100
+        (1 - (((((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100))
+        '''
+        item['relative'][l] = \
+        (item['absolute']['dimensions'][0] / 200 * WINDOWWIDTH *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)),
 
-        item['relative'][l] = ((item['absolute']['dimensions'][0] *
-        (math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))) /200 * WINDOWWIDTH,
+        item['absolute']['dimensions'][1] /200 * WINDOWHEIGHT *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)),
 
-        (item['absolute']['dimensions'][1] *
-        (math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))) /200 * WINDOWHEIGHT,
+        (WINDOWWIDTH/2 + ((WINDOWWIDTH / 2) * (item['absolute']['position'][0] / 100) *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100))) +
+        crosshairx * ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)),
 
-        (WINDOWWIDTH/2 + ((WINDOWWIDTH / 2) *
-        (item['absolute']['position'][0] / 100) *
-        ((math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1])))))) +
-        crosshairx * (math.sin(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))),
-
-        (WINDOWHEIGHT/2 + (WINDOWHEIGHT / 2) *
-        (item['absolute']['position'][1] / 100) *
-        ((math.cos(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1]))))) +
-        crosshairy * ((math.sin(0.015 * (item['absolute']['position'][2] +
-        (l * item['absolute']['layers'][1])))))))
+        (WINDOWHEIGHT/2 + (WINDOWHEIGHT / 2) * (item['absolute']['position'][1] / 100) *
+        (1 - ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)) +
+        crosshairy * ((-0.01 * (((item['absolute']['position'][2] +
+        (l * item['absolute']['layers'][1])) - 100) ** 2) + 100)/100)))
 
 
-def moveObject(item, destination, phase):
-    if destination == 'forward' and phase == 'start':
-        item['absolute']['movement'][2] = 1
-    if destination == 'forward' and phase == 'stop':
-        item['absolute']['movement'][2] = 0
-    if destination == 'backward' and phase == 'start':
-        item['absolute']['movement'][2] = -1
-    if destination == 'backward' and phase == 'stop':
-        item['absolute']['movement'][2] = 0
+def moveObject(item, axis, value):
+    if axis == 'X':
+        item['absolute']['movement'][0] = value
+    if axis == 'Y':
+        item['absolute']['movement'][1] = value
+    if axis == 'Z':
+        item['absolute']['movement'][2] = value
 
+
+
+def shootTheBox():
+        for l in range(box['absolute']['layers'][0]):
+            if event.pos[0] >= box['relative'][l][2] and \
+            event.pos[0] <= (box['relative'][l][2] + box['relative'][l][0]) and\
+            event.pos[1] >= box['relative'][l][3] and \
+            event.pos[1] <= (box['relative'][l][3] + box['relative'][l][1]):
+                box['absolute']['position'] = \
+                [random.randint(-100, (100 - box['absolute']['dimensions'][0])),
+                random.randint(-100, (100 - box['absolute']['dimensions'][1])),
+                random.randint(0, 75)]
+                break
 modifyDimensions(grid)
-print(grid)
+#print(grid)
 
 while True:
     for event in pygame.event.get():
@@ -100,25 +123,48 @@ while True:
             crosshairy = WINDOWHEIGHT / 2 - event.pos[1]
         if event.type == KEYDOWN:
             if event.key == K_UP or event.key == ord('w'):
-                moveObject(grid, 'forward', 'start')
+                moveObject(box, 'Z', 3)
             if event.key == K_DOWN or event.key == ord('s'):
-                moveObject(grid, 'backward', 'start')
+                moveObject(box, 'Z', -3)
+            if event.key == K_UP or event.key == ord('a'):
+                moveObject(box, 'X', -6)
+            if event.key == K_DOWN or event.key == ord('d'):
+                moveObject(box, 'X', 6)
+            if event.key == K_UP or event.key == ord('q'):
+                moveObject(box, 'Y', -6)
+            if event.key == K_DOWN or event.key == ord('e'):
+                moveObject(box, 'Y', 6)
         if event.type == KEYUP:
             if event.key == K_ESCAPE:
                 pygame.quit()
                 sys.exit()
             if event.key == K_UP or event.key == ord('w'):
-                moveObject(grid, 'forward', 'stop')
+                moveObject(box, 'Z', 0)
             if event.key == K_DOWN or event.key == ord('s'):
-                moveObject(grid, 'backward', 'stop')
-        #if event.type == MOUSEBUTTONUP:
-        #    shootTheComet()
+                moveObject(box, 'Z', 0)
+            if event.key == K_UP or event.key == ord('a'):
+                moveObject(box, 'X', 0)
+            if event.key == K_DOWN or event.key == ord('d'):
+                moveObject(box, 'X', 0)
+            if event.key == K_UP or event.key == ord('q'):
+                moveObject(box, 'Y', 0)
+            if event.key == K_DOWN or event.key == ord('e'):
+                moveObject(box, 'Y', 0);
+        if event.type == MOUSEBUTTONUP:
+            shootTheBox()
     windowSurface.fill(BLACK)
     modifyDimensions(grid)
+    modifyDimensions(box)
     #print(grid)
     for o in range(grid['absolute']['layers'][0]):
-        pygame.draw.rect(windowSurface,(50+30*o, 0, 0),
+        pygame.draw.rect(windowSurface,(185-3*o, 0, 0),
         (grid['relative'][o][2], grid['relative'][o][3],
         grid['relative'][o][0], grid['relative'][o][1]))
+    for o in range(box['absolute']['layers'][0]):
+        pygame.draw.rect(windowSurface,(0, 255-10*((box['absolute']['layers'][0]-1) - o), 0),
+        (box['relative'][(box['absolute']['layers'][0]-1) - o][2],
+        box['relative'][(box['absolute']['layers'][0]-1) - o][3],
+        box['relative'][(box['absolute']['layers'][0]-1) - o][0],
+        box['relative'][(box['absolute']['layers'][0]-1) - o][1]))
     pygame.display.update()
     time.sleep(0.02)
